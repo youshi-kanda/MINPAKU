@@ -10,6 +10,8 @@ interface Property {
   facility_name: string;
   address: string;
   property_type: string;
+  operation_area: string;
+  has_renovation: boolean;
   created_at: string;
 }
 
@@ -95,6 +97,8 @@ const Dashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p><span className="font-medium">物件種別:</span> {property.property_type}</p>
+                <p><span className="font-medium">地域:</span> {property.operation_area || "未設定"}</p>
+                <p><span className="font-medium">リノベ:</span> {property.has_renovation ? "あり" : "なし"}</p>
                 <p><span className="font-medium">登録日:</span> {new Date(property.created_at).toLocaleDateString('ja-JP')}</p>
               </CardContent>
               <CardFooter>
