@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.models.property import Property
-from app.services.db import properties, firestore_db
+from app.services.db import properties, firestore_db, supabase_client, save_property_to_database, get_properties_from_database
 import uuid
 from datetime import datetime
 
@@ -15,13 +15,14 @@ async def create_property(property: Property):
     property_dict = property.dict()
     properties.append(property_dict)
     
-    if firestore_db:
-        firestore_db.collection("properties").document(property.id).set(property_dict)
+    await save_property_to_database(property_dict)
         
     return property
     
 @router.get("/properties/", response_model=list[Property])
 async def read_properties():
+    if firestore_db or supabase_client:
+        return await get_properties_from_database()
     return properties
     
 @router.get("/properties/{property_id}", response_model=Property)
