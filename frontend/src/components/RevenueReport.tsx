@@ -45,10 +45,10 @@ const RevenueReport: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const propertyResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
+        const { getAuthHeaders, createApiUrl } = await import('../utils/auth');
+        
+        const propertyResponse = await fetch(createApiUrl(`/api/properties/${id}`), {
+          headers: getAuthHeaders(),
         });
 
         if (!propertyResponse.ok) {
@@ -58,11 +58,11 @@ const RevenueReport: React.FC = () => {
         const propertyData = await propertyResponse.json();
         setProperty(propertyData);
 
-        const projectionsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/revenue/calculate`, {
+        const projectionsResponse = await fetch(createApiUrl('/api/revenue/calculate'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            ...getAuthHeaders()
           },
           body: JSON.stringify(propertyData),
         });
@@ -92,11 +92,13 @@ const RevenueReport: React.FC = () => {
     if (!property) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/revenue/pdf`, {
+      const { getAuthHeaders, createApiUrl } = await import('../utils/auth');
+      
+      const response = await fetch(createApiUrl('/api/revenue/pdf'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          ...getAuthHeaders()
         },
         body: JSON.stringify(property),
       });
@@ -134,11 +136,13 @@ const RevenueReport: React.FC = () => {
 
     setSendingLine(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/line/notify`, {
+      const { getAuthHeaders, createApiUrl } = await import('../utils/auth');
+      
+      const response = await fetch(createApiUrl('/api/line/notify'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          ...getAuthHeaders()
         },
         body: JSON.stringify({
           property_data: property,

@@ -17,86 +17,49 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      const { saveToken, createApiUrl } = await import('../utils/auth');
+      
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
-
-      let baseApiUrl = import.meta.env.VITE_API_URL;
-      const apiUsername = import.meta.env.VITE_API_USERNAME;
-      const apiPassword = import.meta.env.VITE_API_PASSWORD;
       
-      if (baseApiUrl.startsWith('http')) {
-        try {
-          const urlObj = new URL(baseApiUrl);
-          if (urlObj.username || urlObj.password) {
-            urlObj.username = '';
-            urlObj.password = '';
-            baseApiUrl = urlObj.toString();
-          }
-        } catch (error) {
-          console.error('Invalid API URL:', error);
-        }
-      }
-      
-      const originWithoutCredentials = window.location.origin.replace(/^(https?:\/\/)([^@]+@)/, '$1');
-      
-      const apiEndpoint = `${window.location.origin}/api/token`;
-      console.log('API endpoint:', apiEndpoint);
+      const apiEndpoint = createApiUrl('/api/token');
       
       const requestHeaders: Record<string, string> = {
         'Content-Type': 'application/x-www-form-urlencoded',
       };
       
-      console.log('Using browser-managed authentication for tunnel');
+      console.log('Sending login request to:', apiEndpoint);
       
-      const request = new Request(apiEndpoint, {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: requestHeaders,
         body: formData,
-        credentials: 'include'  // Changed from 'same-origin' to 'include' to allow cross-origin requests with credentials
+        credentials: 'same-origin'  // Changed from 'include' to 'same-origin' for same-origin requests
       });
       
-      console.log('Sending login request to:', apiEndpoint);
-      try {
-        const response = await fetch(request);
-        console.log('Login response status:', response.status);
-        console.log('Login response headers:', [...response.headers.entries()]);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Login error response:', errorText);
-          throw new Error(`Login failed: ${response.status} ${errorText}`);
-        }
-        
-        const responseText = await response.text();
-        console.log('Login response text:', responseText);
-        
-        let data;
-        try {
-          data = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error('Error parsing JSON response:', parseError);
-          throw new Error('Invalid JSON response from server');
-        }
-        
-        console.log('Login response data:', data);
-        
-        if (!data.access_token) {
-          throw new Error('No access token in response');
-        }
-        
-        localStorage.setItem('token', data.access_token);
-        
-        toast({
-          title: "Success",
-          description: "Login successful",
-        });
-        
-        navigate('/dashboard');
-      } catch (fetchError) {
-        console.error('Fetch error:', fetchError);
-        throw fetchError;
+      console.log('Login response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Login error response:', errorText);
+        throw new Error(`Login failed: ${response.status} ${errorText}`);
       }
+      
+      const data = await response.json();
+      
+      if (!data.access_token) {
+        throw new Error('No access token in response');
+      }
+      
+      saveToken(data.access_token);
+      
+      toast({
+        title: "Success",
+        description: "Login successful",
+      });
+      
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
       toast({

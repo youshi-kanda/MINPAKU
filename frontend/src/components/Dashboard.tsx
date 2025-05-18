@@ -21,16 +21,11 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const headers: Record<string, string> = {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        };
+        const { getAuthHeaders, createApiUrl } = await import('../utils/auth');
         
-        if (import.meta.env.VITE_API_USERNAME && import.meta.env.VITE_API_PASSWORD) {
-          const credentials = btoa(`${import.meta.env.VITE_API_USERNAME}:${import.meta.env.VITE_API_PASSWORD}`);
-          headers['Authorization'] = `Basic ${credentials}`;
-        }
-
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/`, {
+        const headers = getAuthHeaders();
+        
+        const response = await fetch(createApiUrl('/api/properties/'), {
           headers,
         });
 
@@ -55,8 +50,9 @@ const Dashboard: React.FC = () => {
     fetchProperties();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
+  const handleLogout = async () => {
+    const { removeToken } = await import('../utils/auth');
+    removeToken();
     navigate('/login');
   };
 
