@@ -66,11 +66,13 @@ const PropertyForm: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/`, {
+      const { getAuthHeaders, createApiUrl } = await import('../utils/auth');
+      
+      const response = await fetch(createApiUrl('/api/properties/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          ...getAuthHeaders()
         },
         body: JSON.stringify(formData),
       });

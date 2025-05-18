@@ -10,8 +10,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
+    import('./utils/auth').then(({ isTokenValid }) => {
+      setIsAuthenticated(isTokenValid());
+    });
   }, []);
 
   if (isAuthenticated === null) {
