@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Button } from "./ui/button";
 import { toast } from "../hooks/use-toast";
 import { Download, Send } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -215,10 +216,18 @@ const RevenueReport: React.FC = () => {
 
           <h3 className="text-lg font-semibold mb-4">月別収益予測</h3>
           <div className="h-80 mb-6">
-            {/* We would normally use a chart library like recharts here */}
-            <div className="text-center text-gray-500 h-full flex items-center justify-center border rounded-md">
-              <p>グラフ表示エリア (実装時にはrecharts等のライブラリを使用)</p>
-            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={Object.entries(projections.monthly).map(([month, data]) => ({ month, ...data }))}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => `¥${Number(value).toLocaleString()}`} />
+                <Legend />
+                <Bar dataKey="revenue" name="予想売上" fill="#8884d8" />
+                <Bar dataKey="expenses" name="予想経費" fill="#82ca9d" />
+                <Bar dataKey="profit" name="予想利益" fill="#ffc658" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

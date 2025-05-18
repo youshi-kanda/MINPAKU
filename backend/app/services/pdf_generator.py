@@ -102,8 +102,19 @@ def generate_revenue_report(property_data, projections):
         ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTNAME', (0, 0), (-1, -1), 'IPAGothic' if has_japanese_font else 'Helvetica'),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),  # 数値列を右揃えに
+        ('TEXTCOLOR', (3, 1), (3, -2), colors.darkgreen),  # 利益列を緑色に
+        ('TEXTCOLOR', (3, -1), (3, -1), colors.darkgreen),  # 年間合計の利益も緑色に
     ]))
     content.append(t)
+    
+    content.append(Spacer(1, 20))
+    content.append(Paragraph("収益予測の説明:", styles['JapaneseStyle']))
+    content.append(Spacer(1, 10))
+    content.append(Paragraph(f"• 本レポートは{property_data['facility_name']}の過去のデータと市場動向に基づく予測です。", styles['JapaneseStyle']))
+    content.append(Paragraph("• 季節変動を考慮した月別の予測を提供しています。", styles['JapaneseStyle']))
+    content.append(Paragraph("• 収益予測には清掃費、プラットフォーム手数料、メンテナンス費用などの経費が含まれています。", styles['JapaneseStyle']))
+    content.append(Paragraph("• この予測は参考値であり、実際の収益は市場状況や運営方法により変動する可能性があります。", styles['JapaneseStyle']))
     
     doc.build(content)
     return temp_file.name
